@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Definindo a codificação de caracteres e a responsividade da página -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo K-means em JavaScript</title>
+    <style>
+        /* Estilos básicos para o corpo e o canvas (área de desenho) */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        canvas {
+            border: 1px solid #ccc; /* Borda para o canvas */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Título principal da página -->
+    <h1>Algoritmo de Agrupamento de K-médias (K-means)</h1>
+    
+    <!-- Área de desenho onde os pontos e clusters serão exibidos -->
+    <canvas id="canvas" width="600" height="400"></canvas>
+    
+    <!-- Botão para executar o algoritmo de K-means -->
+    <p><strong>Pressione o botão abaixo para agrupar pontos em 3 clusters:</strong></p>
+    <button onclick="runKMeans()">Executar K-means</button>
+
+    <script>
+        // Obtendo o elemento do canvas e o contexto para desenhar nele
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        /**
+         * Função para gerar pontos aleatórios.
+         * Esta função cria uma quantidade de pontos aleatórios em um intervalo de tamanho especificado.
+         * @param {number} n - Número de pontos a serem gerados.
+         * @param {number} maxX - Limite máximo para a coordenada X dos pontos.
+         * @param {number} maxY - Limite máximo para a coordenada Y dos pontos.
+         * @returns {Array} Um array com os pontos gerados (com as coordenadas x e y).
+         */
+        function generateRandomPoints(n, maxX, maxY) {
+            let points = [];
+            for (let i = 0; i < n; i++) {
+                points.push({
+                    x: Math.random() * maxX,  // coordenada X aleatória
+                    y: Math.random() * maxY   // coordenada Y aleatória
+                });
+            }
+            return points;
+        }
+
+        /**
+         * Função para desenhar os pontos no canvas.
+         * Ela desenha círculos representando os pontos e, opcionalmente, os agrupa por cores.
+         * @param {Array} points - Lista de pontos (objetos com x e y).
+         * @param {Array} [clusters=[]] - Lista de clusters (opcional), cada ponto recebe a cor de seu cluster.
+         */
+        function drawPoints(points, clusters = []) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas antes de desenhar
+            points.forEach((point, index) => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);  // Desenha um círculo para o ponto
+                ctx.fillStyle = clusters[index] ? clusters[index].color : '#000';  // Define a cor do ponto
+                ctx.fill();  // Preenche o círculo com a cor
+            });
+        }
+
+        /**
+         * Função para desenhar os centros dos clusters.
+         * @param {Array} centroids - Lista dos centros dos clusters.
+         */
+        function drawCentroids(centroids) {
+            centroids.forEach(centroid => {
+                ctx.beginPath();
+                ctx.arc(centroid.x, centroid.y, 10, 0, 2 * Math.PI);  // Desenha um círculo maior para os centros
+                ctx.fillStyle = centroid.color;  // Define a cor do centro
+                ctx.fill();  // Preenche o círculo com a cor
+            });
+        }
+
+        /**
+         * Algoritmo K-means para realizar o agrupamento de pontos.
+         * @param {Array} points - Lista de pontos a serem agrupados.
+         * @param {number} k - Número de clusters desejado (padrão 3).
+         * @param {number} iterations - Número de iterações para o algoritmo (padrão 100).
+         * @returns {Object} Um objeto contendo os clusters e os centros dos clusters.
+         */
+        function kMeans(points, k = 3, iterations = 100) {
+            // Inicializa os centros dos clusters de forma aleatória
+            let centroids = [];
+            let clusters = [];
+            let colors = ['#FF5733', '#33FF57', '#3357FF'];  // Cores para os 3 clusters
+
+            // Inicializa os centros aleatórios a partir de coordenadas no canvas
+            for (let i = 0; i < k; i++) {
+                centroids.push({
+                    x: Math.random() * canvas.width,  // Coordenada X aleatória
+                    y: Math.random() * canvas.height, // Coordenada Y aleatória
+                    color: colors[i]  // Atribui uma cor única para cada centro
+                });
+            }
+
+            // Realiza o processo de agrupamento até o número de iterações ou convergência
+            for (let iter = 0; iter < iterations; iter++) {
+                // Passo 1: Atribuir pontos aos clusters mais próximos
+                clusters = points.map(point => {
+                    let distances = centroids.map(centroid => 
+                        Math.sqrt(Math.pow(centroid.x - point.x, 2) + Math.pow(centroid.y - point.y, 2))
+                    );
+                    let closestCentroidIndex = distances.indexOf(Math.min(...distances));  // Encontrar o centro mais próximo
+                    return centroids[closestCentroidIndex];  // Atribuir o ponto ao cluster mais próximo
+                });
+
+                // Passo 2: Atualizar os centros dos clusters com a média dos pontos atribuídos
+                let newCentroids = centroids.map((centroid, i) => {
+                    let assignedPoints = points.filter((point, index) => clusters[index] === centroid);  // Filtra os pontos atribuídos ao centro
+                    let newX = assignedPoints.reduce((sum, point) => sum + point.x, 0) / assignedPoints.length;  // Calcula a média das coordenadas X
+                    let newY = assignedPoints.reduce((sum, point) => sum + point.y, 0) / assignedPoints.length;  // Calcula a média das coordenadas Y
+
+                    return { ...centroid, x: newX, y: newY };  // Atualiza as coordenadas do centro
+                });
+
+                // Verificar se os centros mudaram. Se não, o algoritmo convergiu
+                if (newCentroids.every((newCentroid, i) => newCentroid.x === centroids[i].x && newCentroid.y === centroids[i].y)) {
+                    break;
+                }
+                centroids = newCentroids;  // Atualiza os centros para a próxima iteração
+            }
+
+            return { clusters, centroids };  // Retorna os clusters e os novos centros
+        }
+
+        /**
+         * Função que executa o algoritmo de K-means.
+         * Ela gera os pontos aleatórios, roda o K-means e desenha os resultados no canvas.
+         */
+        function runKMeans() {
+            // Gera 100 pontos aleatórios dentro das dimensões do canvas
+            let points = generateRandomPoints(100, canvas.width, canvas.height);
+
+            // Executa o algoritmo K-means para agrupar os pontos em 3 clusters
+            let { clusters, centroids } = kMeans(points, 3);
+
+            // Desenha os pontos e os centros no canvas
+            drawPoints(points, clusters);
+            drawCentroids(centroids);
+        }
+
+        // Chama a função para rodar o K-means assim que a página for carregada
+        runKMeans();
+    </script>
+
+</body>
+</html>
