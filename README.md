@@ -1,4 +1,6 @@
-# Algoritmo K-means para Agrupamento de Dados
+# Algoritmo K-means
+
+- Agrupamento de Dados
 
 Este projeto implementa o **Algoritmo K-means**, uma técnica de **aprendizado não supervisionado** utilizada para realizar o agrupamento de dados (clustering). O código foi desenvolvido utilizando **JavaScript**, **HTML** e **CSS** para proporcionar uma visualização interativa do funcionamento do K-means.
 
