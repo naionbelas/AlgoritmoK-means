@@ -1,0 +1,73 @@
+/* Estilos para as páginas */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Estilo para os projetos */
+.project {
+    display: none;
+    /* Inicialmente escondido */
+}
+
+/* Estilos para o projeto de imobiliária */
+.imobiliaria {
+    display: block;
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+input[type="number"],
+input[type="submit"] {
+    padding: 10px;
+    margin: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+}
+
+th,
+td {
+    padding: 10px;
+    text-align: left;
+}
+
+canvas {
+    border: 1px solid #ccc;
+    /* Borda para o canvas */
+}

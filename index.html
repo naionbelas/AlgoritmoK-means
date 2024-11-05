@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- Definindo a codificação de caracteres e a responsividade da página -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos - Selecione um</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link para o arquivo CSS externo -->
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Selecione o Projeto a Visualizar</h1>
+        <!-- Botões para alternar entre os projetos -->
+        <button onclick="showProject('kmeans')">K-means</button>
+        <button onclick="showProject('imobiliaria')">Imobiliária</button>
+
+        <!-- ### Início Div para o projeto de Imobiliária ### -->
+        <div id="imobiliaria" class="project">
+            <h1>Lista de Imóveis</h1>
+            <!-- Formulário de filtro de preço -->
+            <form id="filterForm">
+                <label for="filter">Filtrar por preço máximo:</label>
+                <input type="number" id="filter" placeholder="Preço máximo" required>
+                <input type="submit" value="Filtrar">
+            </form>
+
+            <!-- Tabela onde os imóveis serão exibidos -->
+            <table id="imoveisTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Número de Quartos</th>
+                        <th>Tamanho do Lote (m²)</th>
+                        <th>Localização</th>
+                        <th>Preço (R$)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Os dados dos imóveis serão inseridos aqui pelo JavaScript -->
+                </tbody>
+            </table>
+        </div> 
+        <!-- ### Fim Div para o projeto de Imobiliária ### -->
+
+        <!-- ### Início Div para o projeto de K-means ### -->
+        <div id="kmeans" class="project">
+            <div>
+                <h1>Algoritmo de Agrupamento de K-médias (K-means)</h1>
+                <p><strong>Pressione o botão abaixo para agrupar pontos em 3 clusters:</strong></p>
+                <button onclick="runKMeans()">Executar K-means</button>
+            </div>
+
+            <!-- Área de desenho onde os pontos e clusters serão exibidos -->
+            <canvas id="canvas" width="600" height="400"></canvas>
+        </div> 
+        <!-- ### Fim Div para o projeto de K-means ### -->
+
+    </div>
+
+    <script src="scripts.js"></script> <!-- Link para o arquivo JavaScript externo -->
+
+</body>
+
+</html>
