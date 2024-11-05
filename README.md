@@ -5,7 +5,7 @@ Este projeto implementa o **Algoritmo K-means**, uma técnica de **aprendizado n
 ## Autor
     Aluno: Naion Belas Juvenal
     Curso: Análise e Desenvolvimento de Sistemas
-    Disciplina: Inteligência Artificial
+    Disciplina: Inteligência Artificial - (Aula 08 IA Aprendizagem não supervisionada)
     Instituição: FATEC de Santana de Parnaíba
     E-mail: naionbelas@gmail.com
 
@@ -36,6 +36,8 @@ Para rodar este projeto, siga os seguintes passos:
 2. Abra o arquivo index.html em um navegador para ver a visualização interativa do agrupamento de dados.
 
 3. Clique no botão **"Executar K-means"** para iniciar o algoritmo e visualizar os clusters formados.
+
+- **Link do projeto no Pages do github**: https://naionbelas.github.io/AlgoritmoK-means/
 
 ### Funcionalidades
 - **Geração Aleatória de Dados**: O algoritmo gera 100 pontos aleatórios no espaço 2D para serem agrupados.
