@@ -5,7 +5,7 @@ Este projeto implementa o **Algoritmo K-means**, uma técnica de **aprendizado n
 ## Autor
     Aluno: Naion Belas Juvenal
     Curso: Análise e Desenvolvimento de Sistemas
-    Disciplina: Inteligência Artificial - (Aula 08 IA Aprendizagem não supervisionada)
+    Disciplina: Inteligência Artificial - (Aula 11 - Aprendizagem não supervisionada)
     Instituição: FATEC de Santana de Parnaíba
     E-mail: naionbelas@gmail.com
 
