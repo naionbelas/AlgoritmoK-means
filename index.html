@@ -1,15 +1,73 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <!-- Definindo a codificação de caracteres e a responsividade da página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exemplo K-means em JavaScript</title>
+    <title>Projetos - Selecione um</title>
     <style>
-        /* Estilos básicos para o corpo e o canvas (área de desenho) */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
             padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Estilo para os projetos */
+        .project {
+            display: none;  /* Inicialmente escondido */
+        }
+
+        /* Estilos para o projeto de imobiliária */
+        .imobiliaria {
+            display: block;
+        }
+
+        /* Estilos para a página */
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="number"], input[type="submit"] {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
         }
 
         canvas {
@@ -19,139 +77,168 @@
 </head>
 <body>
 
-    <!-- Título principal da página -->
-    <h1>Algoritmo de Agrupamento de K-médias (K-means)</h1>
-    
-    <!-- Área de desenho onde os pontos e clusters serão exibidos -->
-    <canvas id="canvas" width="600" height="400"></canvas>
-    
-    <!-- Botão para executar o algoritmo de K-means -->
-    <p><strong>Pressione o botão abaixo para agrupar pontos em 3 clusters:</strong></p>
-    <button onclick="runKMeans()">Executar K-means</button>
+    <div class="container">
+        <h1>Selecione o Projeto a Visualizar</h1>
+        <!-- Botões para alternar entre os projetos -->
+        
+        <button onclick="showProject('kmeans')">K-means</button>
+        <button onclick="showProject('imobiliaria')">Imobiliária</button>
+
+        <!-- Div para o projeto de Imobiliária -->
+        <div id="imobiliaria" class="project">
+            <h1>Lista de Imóveis</h1>
+            <form id="filterForm">
+                <label for="filter">Filtrar por preço máximo:</label>
+                <input type="number" id="filter" placeholder="Preço máximo" required>
+                <input type="submit" value="Filtrar">
+            </form>
+            <table id="imoveisTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Número de Quartos</th>
+                        <th>Tamanho do Lote (m²)</th>
+                        <th>Localização</th>
+                        <th>Preço (R$)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <script>
+                const imoveis = [
+                    { id: 1, numero_quartos: 3, tamanho_lote: 150.00, localizacao: 'Centro', preco: 300000.00 },
+                    { id: 2, numero_quartos: 2, tamanho_lote: 80.00, localizacao: 'Bairro A', preco: 200000.00 },
+                    { id: 3, numero_quartos: 4, tamanho_lote: 200.00, localizacao: 'Bairro B', preco: 450000.00 },
+                    { id: 4, numero_quartos: 1, tamanho_lote: 60.00, localizacao: 'Bairro C', preco: 150000.00 },
+                    { id: 5, numero_quartos: 3, tamanho_lote: 120.00, localizacao: 'Centro', preco: 350000.00 },
+                    { id: 6, numero_quartos: 5, tamanho_lote: 250.00, localizacao: 'Bairro D', preco: 600000.00 }
+                ];
+
+                function exibirImoveis(imoveisFiltrados) {
+                    const tbody = document.querySelector('#imoveisTable tbody');
+                    tbody.innerHTML = ''; // Limpa a tabela
+                    imoveisFiltrados.forEach(imovel => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${imovel.id}</td>
+                            <td>${imovel.numero_quartos}</td>
+                            <td>${imovel.tamanho_lote}</td>
+                            <td>${imovel.localizacao}</td>
+                            <td>${imovel.preco.toFixed(2)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                function filtrarImoveis() {
+                    const filterValue = document.querySelector('#filter').value;
+                    const imoveisFiltrados = imoveis.filter(imovel => imovel.preco <= filterValue);
+                    exibirImoveis(imoveisFiltrados);
+                }
+
+                document.querySelector('#filterForm').addEventListener('submit', event => {
+                    event.preventDefault();
+                    filtrarImoveis();
+                });
+
+                exibirImoveis(imoveis);
+            </script>
+        </div>
+
+        <!-- Div para o projeto de K-means -->
+        <div id="kmeans" class="project">
+            <div>
+                <h1>Algoritmo de Agrupamento de K-médias (K-means)</h1>
+                <button onclick="runKMeans()">Executar K-means</button>
+            </div>
+            
+            <canvas id="canvas" width="600" height="400"></canvas>
+            
+            <script>
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                function generateRandomPoints(n, maxX, maxY) {
+                    let points = [];
+                    for (let i = 0; i < n; i++) {
+                        points.push({ x: Math.random() * maxX, y: Math.random() * maxY });
+                    }
+                    return points;
+                }
+
+                function drawPoints(points, clusters = []) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    points.forEach((point, index) => {
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                        ctx.fillStyle = clusters[index] ? clusters[index].color : '#000';
+                        ctx.fill();
+                    });
+                }
+
+                function drawCentroids(centroids) {
+                    centroids.forEach(centroid => {
+                        ctx.beginPath();
+                        ctx.arc(centroid.x, centroid.y, 10, 0, 2 * Math.PI);
+                        ctx.fillStyle = centroid.color;
+                        ctx.fill();
+                    });
+                }
+
+                function kMeans(points, k = 3, iterations = 100) {
+                    let centroids = [];
+                    let clusters = [];
+                    let colors = ['#FF5733', '#33FF57', '#3357FF'];
+
+                    for (let i = 0; i < k; i++) {
+                        centroids.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, color: colors[i] });
+                    }
+
+                    for (let iter = 0; iter < iterations; iter++) {
+                        clusters = points.map(point => {
+                            let distances = centroids.map(centroid => Math.sqrt(Math.pow(centroid.x - point.x, 2) + Math.pow(centroid.y - point.y, 2)));
+                            let closestCentroidIndex = distances.indexOf(Math.min(...distances));
+                            return centroids[closestCentroidIndex];
+                        });
+
+                        let newCentroids = centroids.map((centroid, i) => {
+                            let assignedPoints = points.filter((point, index) => clusters[index] === centroid);
+                            let newX = assignedPoints.reduce((sum, point) => sum + point.x, 0) / assignedPoints.length;
+                            let newY = assignedPoints.reduce((sum, point) => sum + point.y, 0) / assignedPoints.length;
+                            return { ...centroid, x: newX, y: newY };
+                        });
+
+                        if (newCentroids.every((newCentroid, i) => newCentroid.x === centroids[i].x && newCentroid.y === centroids[i].y)) {
+                            break;
+                        }
+                        centroids = newCentroids;
+                    }
+
+                    return { clusters, centroids };
+                }
+
+                function runKMeans() {
+                    let points = generateRandomPoints(100, canvas.width, canvas.height);
+                    let { clusters, centroids } = kMeans(points, 3);
+                    drawPoints(points, clusters);
+                    drawCentroids(centroids);
+                }
+
+                runKMeans();
+            </script>
+        </div>
+    </div>
 
     <script>
-        // Obtendo o elemento do canvas e o contexto para desenhar nele
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-
-        /**
-         * Função para gerar pontos aleatórios.
-         * Esta função cria uma quantidade de pontos aleatórios em um intervalo de tamanho especificado.
-         * @param {number} n - Número de pontos a serem gerados.
-         * @param {number} maxX - Limite máximo para a coordenada X dos pontos.
-         * @param {number} maxY - Limite máximo para a coordenada Y dos pontos.
-         * @returns {Array} Um array com os pontos gerados (com as coordenadas x e y).
-         */
-        function generateRandomPoints(n, maxX, maxY) {
-            let points = [];
-            for (let i = 0; i < n; i++) {
-                points.push({
-                    x: Math.random() * maxX,  // coordenada X aleatória
-                    y: Math.random() * maxY   // coordenada Y aleatória
-                });
-            }
-            return points;
-        }
-
-        /**
-         * Função para desenhar os pontos no canvas.
-         * Ela desenha círculos representando os pontos e, opcionalmente, os agrupa por cores.
-         * @param {Array} points - Lista de pontos (objetos com x e y).
-         * @param {Array} [clusters=[]] - Lista de clusters (opcional), cada ponto recebe a cor de seu cluster.
-         */
-        function drawPoints(points, clusters = []) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas antes de desenhar
-            points.forEach((point, index) => {
-                ctx.beginPath();
-                ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);  // Desenha um círculo para o ponto
-                ctx.fillStyle = clusters[index] ? clusters[index].color : '#000';  // Define a cor do ponto
-                ctx.fill();  // Preenche o círculo com a cor
+        function showProject(project) {
+            document.querySelectorAll('.project').forEach(div => {
+                div.style.display = 'none';
             });
+            document.getElementById(project).style.display = 'block';
         }
 
-        /**
-         * Função para desenhar os centros dos clusters.
-         * @param {Array} centroids - Lista dos centros dos clusters.
-         */
-        function drawCentroids(centroids) {
-            centroids.forEach(centroid => {
-                ctx.beginPath();
-                ctx.arc(centroid.x, centroid.y, 10, 0, 2 * Math.PI);  // Desenha um círculo maior para os centros
-                ctx.fillStyle = centroid.color;  // Define a cor do centro
-                ctx.fill();  // Preenche o círculo com a cor
-            });
-        }
-
-        /**
-         * Algoritmo K-means para realizar o agrupamento de pontos.
-         * @param {Array} points - Lista de pontos a serem agrupados.
-         * @param {number} k - Número de clusters desejado (padrão 3).
-         * @param {number} iterations - Número de iterações para o algoritmo (padrão 100).
-         * @returns {Object} Um objeto contendo os clusters e os centros dos clusters.
-         */
-        function kMeans(points, k = 3, iterations = 100) {
-            // Inicializa os centros dos clusters de forma aleatória
-            let centroids = [];
-            let clusters = [];
-            let colors = ['#FF5733', '#33FF57', '#3357FF'];  // Cores para os 3 clusters
-
-            // Inicializa os centros aleatórios a partir de coordenadas no canvas
-            for (let i = 0; i < k; i++) {
-                centroids.push({
-                    x: Math.random() * canvas.width,  // Coordenada X aleatória
-                    y: Math.random() * canvas.height, // Coordenada Y aleatória
-                    color: colors[i]  // Atribui uma cor única para cada centro
-                });
-            }
-
-            // Realiza o processo de agrupamento até o número de iterações ou convergência
-            for (let iter = 0; iter < iterations; iter++) {
-                // Passo 1: Atribuir pontos aos clusters mais próximos
-                clusters = points.map(point => {
-                    let distances = centroids.map(centroid => 
-                        Math.sqrt(Math.pow(centroid.x - point.x, 2) + Math.pow(centroid.y - point.y, 2))
-                    );
-                    let closestCentroidIndex = distances.indexOf(Math.min(...distances));  // Encontrar o centro mais próximo
-                    return centroids[closestCentroidIndex];  // Atribuir o ponto ao cluster mais próximo
-                });
-
-                // Passo 2: Atualizar os centros dos clusters com a média dos pontos atribuídos
-                let newCentroids = centroids.map((centroid, i) => {
-                    let assignedPoints = points.filter((point, index) => clusters[index] === centroid);  // Filtra os pontos atribuídos ao centro
-                    let newX = assignedPoints.reduce((sum, point) => sum + point.x, 0) / assignedPoints.length;  // Calcula a média das coordenadas X
-                    let newY = assignedPoints.reduce((sum, point) => sum + point.y, 0) / assignedPoints.length;  // Calcula a média das coordenadas Y
-
-                    return { ...centroid, x: newX, y: newY };  // Atualiza as coordenadas do centro
-                });
-
-                // Verificar se os centros mudaram. Se não, o algoritmo convergiu
-                if (newCentroids.every((newCentroid, i) => newCentroid.x === centroids[i].x && newCentroid.y === centroids[i].y)) {
-                    break;
-                }
-                centroids = newCentroids;  // Atualiza os centros para a próxima iteração
-            }
-
-            return { clusters, centroids };  // Retorna os clusters e os novos centros
-        }
-
-        /**
-         * Função que executa o algoritmo de K-means.
-         * Ela gera os pontos aleatórios, roda o K-means e desenha os resultados no canvas.
-         */
-        function runKMeans() {
-            // Gera 100 pontos aleatórios dentro das dimensões do canvas
-            let points = generateRandomPoints(100, canvas.width, canvas.height);
-
-            // Executa o algoritmo K-means para agrupar os pontos em 3 clusters
-            let { clusters, centroids } = kMeans(points, 3);
-
-            // Desenha os pontos e os centros no canvas
-            drawPoints(points, clusters);
-            drawCentroids(centroids);
-        }
-
-        // Chama a função para rodar o K-means assim que a página for carregada
-        runKMeans();
+        // Exibe o projeto K-means por padrão
+        showProject('kmeans');
     </script>
 
 </body>
